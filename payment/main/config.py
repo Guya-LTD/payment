@@ -24,16 +24,35 @@ Project
     * Description
         - Payment api
 """
-from flask_restplus import Api
-from flask import Blueprint
+""" Config class. """
+import os 
+ 
+class Config:
+    """Base config vars.""" 
+    SECRET_KEY = os.environ.get('SECRET_KEY') or '_5x'
+    
+    DEBUG = os.environ.get('DEBUG') or True
+    
+    TESTING = os.environ.get('TESTING') or True
 
-blueprint = Blueprint('api', '__main__')
 
-api = Api(
-    blueprint,
-    title = 'PAYMENT SERVICE RESTful API',
-    version = '1.0.0',
-    description = 'Guya\'s E-commerce Payment API'
+class Prodconfig(Config):
+    pass
+
+
+
+class DevConfig(Config):
+    pass
+
+
+   
+class TestConfig(Config):
+    pass
+    
+
+
+config_by_name = dict(
+    dev=DevConfig,
+    test=TestConfig,
+    prod=Prodconfig
 )
-
-# apis
