@@ -5,6 +5,20 @@ networks:
     driver: ${NETWORKS_DRIVER}
 
 services:
+  doc:
+    image: payment-service/doc
+    build:
+      context: .
+      dockerfile: ./doc/Dockerfile
+      args:
+        ALPINE_VERSION: ${ALPINE_VERSION}
+    volumes:
+      - "${SERVICE_DIR}/docs:/etc/Sphinx/source"
+    ports:
+      - "${DOC_PORT}:80"
+    networks:
+      - payment-service
+
   mongo:
     image: payment-service/mongo
     build:
