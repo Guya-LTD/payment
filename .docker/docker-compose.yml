@@ -1,0 +1,43 @@
+version: '3.7'
+
+networks:
+  payment-service:
+    driver: ${NETWORKS_DRIVER}
+
+services:
+  mongo:
+    image: payment-service/mongo
+    build:
+      context: .
+      dockerfile: ./mongo/Dockerfile
+      args:
+        MONGO_VERSION: ${MONGO_VERSION}
+    volumes:
+      - "${SERVICE_DIR}/mongo/data/db:/data/db"
+    ports:
+      - "${MONGO_PORT}"
+    networks:
+      - payment-service
+
+  payment-api:
+    image: payment-service/payment-api
+    build:
+      context: .
+      dockerfile: ./payment/Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+        ENV: ${ENV}
+        WORK_DIR: ${WORK_DIR}
+    environment:
+      - ENV=${ENV}
+      - TESTING=${TESTING}
+      - DEBUG=${DEBUG}
+      - PORT=${PAYMENT_PORT}
+      - HOST=${CONTAINER_HOST}
+    volumes:
+      - '${BASE_DIR}:${WORK_DIR}'
+    ports:
+      - '${PAYMENT_PORT}:${PAYMENT_PORT}'
+    networks:
+      - payment-service
+    
