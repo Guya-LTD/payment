@@ -35,6 +35,12 @@ class Config:
     
     TESTING = os.environ.get('TESTING') or True
 
+    MONGODB_DB = os.environ.get('DB_NAME')
+    
+    MONGODB_HOST = os.environ.get('DB_HOST')
+
+    MONGODB_PORT =  int(os.environ.get('DB_PORT'))\
+
 
 class Prodconfig(Config):
     pass
@@ -48,7 +54,6 @@ class DevConfig(Config):
    
 class TestConfig(Config):
     pass
-    
 
 
 config_by_name = dict(

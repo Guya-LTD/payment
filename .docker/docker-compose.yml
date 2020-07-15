@@ -21,11 +21,16 @@ services:
 
   mongo:
     image: payment-service/mongo
+    container_name: mongo
     build:
       context: .
       dockerfile: ./mongo/Dockerfile
       args:
         MONGO_VERSION: ${MONGO_VERSION}
+    environment:
+      - MONGO_INITDB_DATABASE=${DB_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=${DB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
     volumes:
       - "${SERVICE_DIR}/mongo/data/db:/data/db"
     ports:
@@ -33,8 +38,9 @@ services:
     networks:
       - payment-service
 
-  payment-api:
-    image: payment-service/payment-api
+  payment:
+    image: payment-service/payment
+    container_name: payment
     build:
       context: .
       dockerfile: ./payment/Dockerfile
@@ -48,6 +54,9 @@ services:
       - DEBUG=${DEBUG}
       - PORT=${PAYMENT_PORT}
       - HOST=${CONTAINER_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
     volumes:
       - '${BASE_DIR}:${WORK_DIR}'
     ports:

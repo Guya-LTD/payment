@@ -1,3 +1,12 @@
+# mongo datas
+.docker/mongo/data/db/*.wt
+.docker/mongo/data/db/*.data
+.docker/mongo/data/db/*.lock
+.docker/mongo/data/db/*.bson
+.docker/mongo/data/db/journal/
+.docker/mongo/data/db/WiredTiger
+.docker/mongo/data/db/WiredTiger.*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

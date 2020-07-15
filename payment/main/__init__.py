@@ -27,9 +27,14 @@ Project
 import sys
 import logging
 import logstash
-from flask import Flask
+from flask import Flask, jsonify, abort
+from flask_mongoengine import MongoEngine
+from werkzeug.exceptions import HTTPException, default_exceptions
 
 from .config import config_by_name, os
+
+# mongoengine
+db = MongoEngine()
 
 # app
 HOST = os.environ.get('HOST') or '0.0.0.0'
@@ -60,12 +65,31 @@ EXTRA = {
         'version': str(sys.version),
         'version_info': repr(sys.version_info)
     }
-} 
+}
+
+# Jsonify 1xx, 2xx, 3xx, 4xx, 5xx errors 
+def JsonApp(app):
+    def error_handling(error):
+        if isinstance(error, HTTPException):
+            result = {'code': error.code, 'description': error.description, 'message': str(error)}
+        else:
+            description = abort.mapping[500].description
+            result = {'code': 500, 'description': description, 'message': str(error)}
+
+        resp = jsonify(result)
+        resp.status_code = result['code']
+        return resp
+
+    for code in default_exceptions.keys():
+        app.register_error_handler(code, error_handling)
+        
+    return app
   
 # app    
 def create_app():
-    app = Flask(__name__)
+    app = JsonApp(Flask(__name__))
     config_name = ENV
     app.config.from_object(config_by_name[config_name])
-    
+    db.init_app(app)
+
     return app

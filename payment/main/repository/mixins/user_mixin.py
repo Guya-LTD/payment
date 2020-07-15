@@ -24,19 +24,31 @@ Project
     * Description
         - Payment api
 """
-from flask_restplus import Api
-from flask import Blueprint
 
-#from payment.main.controller.payment_controller import api as payment_api
+"""`flask-mongoengine` Based ODM
 
-blueprint = Blueprint('api', '__main__')
+`flask-mongoengine` built up on pymongo engine.
 
-api = Api(
-    blueprint,
-    title = 'PAYMENT SERVICE RESTful API',
-    version = '1.0.0',
-    description = 'Guya\'s E-commerce Payment API'
-)
+Version Requirements: 
+    * flask-mongoengine v0.7
+"""
+from ... import db
 
-# apis
-#api.add_namespace(payment_api, path = '/api/v1/auth/payments')
+class UserMixin(object):
+    """Time Stamped Mixin
+
+    Attributes
+    ----------
+    created_by : Integer
+        Users/Admins Unique Identifier
+
+    updated_by : Integer
+        Users/Admins Unique Identifier
+
+    """
+
+    created_by = db.StringField()
+
+
+    updated_by = db.StringField()
+

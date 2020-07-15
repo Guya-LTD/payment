@@ -25,8 +25,8 @@ build: clean init ## Build all docker images from scratch, without cache etc. Bu
 	$(DOCKER_COMPOSE) rm -fs $(CONTAINER)
 	$(DOCKER_COMPOSE) build --no-cache --parallel $(CONTAINER)
 
-.PHONY: re-build
-re-build: init ## Build all docker images. Build a specific image by providing the service name via: make docker-build CONTAINER=<service>
+.PHONY: rebuild
+rebuild: init ## Build all docker images. Build a specific image by providing the service name via: make docker-build CONTAINER=<service>
 	$(DOCKER_COMPOSE) build --parallel $(CONTAINER)
 
 .PHONY: run
