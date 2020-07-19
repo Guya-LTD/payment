@@ -56,7 +56,7 @@ logger.addHandler(logstash.LogstashHandler(LOGGER_HOST, LOGGER_PORT, version=1))
 
 # extra logging formats
 EXTRA = {
-    'app_name': 'Xtrack Sevrice',      
+    'app_name': 'Payment Sevrice',      
     'environment': ENV,  
     'container_host': HOST,
     'port': PORT,
@@ -71,18 +71,95 @@ EXTRA = {
 def JsonApp(app):
     def error_handling(error):
         if isinstance(error, HTTPException):
-            result = {'code': error.code, 'description': error.description, 'message': str(error)}
+            result = {
+                'code': error.code, 
+                'description': error.description, 
+                'type': 'HTTPException',
+                'message': str(error)}
         else:
-            description = abort.mapping[500].description
-            result = {'code': 500, 'description': description, 'message': str(error)}
+            result = {
+                'code': 500, 
+                'description': 'Internal Server Error',
+                'type': 'Other Exceptions',
+                'message': str(error)}
 
+        #logger.exception(str(error), extra=result.update(EXTRA))
         resp = jsonify(result)
         resp.status_code = result['code']
         return resp
 
     for code in default_exceptions.keys():
         app.register_error_handler(code, error_handling)
-        
+
+    ## Mongoengine Exception handlers
+    def mongoengine_generic_error_handler(error):
+        # formatting the exception
+        result = {
+            'code': 500, 
+            'description': 'Internal Server Error', 
+            'type': 'mongoengine.errors',
+            'message': str(error)}
+
+        # logg exception
+        #logger.exception(str(error), extra=result.update(EXTRA))
+        resp = jsonify(result)
+        resp.status_code = 500
+        return resp
+
+    def mongoengine_not_registered_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_invalid_document_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_lookup_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_does_not_exist_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_multiple_objects_returned_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_invalid_query_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_operation_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_not_unique_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_bulk_write_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_file_doesnot_exist_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_validation_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_save_condition_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    def mongoengine_deprecated_error_handler(error):
+        return mongoengine_generic_error_handler(error)
+
+    # register mongoengine exceptions    
+    app.register_error_handler(db.NotRegistered, mongoengine_not_registered_error_handler)
+    app.register_error_handler(db.InvalidDocumentError, mongoengine_invalid_document_error_handler)
+    app.register_error_handler(db.LookUpError, mongoengine_lookup_error_handler)
+    app.register_error_handler(db.DoesNotExist, mongoengine_does_not_exist_error_handler)
+    app.register_error_handler(db.MultipleObjectsReturned, mongoengine_multiple_objects_returned_error_handler)
+    app.register_error_handler(db.InvalidQueryError, mongoengine_invalid_query_error_handler)
+    app.register_error_handler(db.OperationError, mongoengine_operation_error_handler)
+    app.register_error_handler(db.NotUniqueError, mongoengine_not_unique_error_handler)
+    app.register_error_handler(db.BulkWriteError, mongoengine_bulk_write_error_handler)
+    app.register_error_handler(db.FieldDoesNotExist, mongoengine_file_doesnot_exist_error_handler)
+    app.register_error_handler(db.ValidationError, mongoengine_validation_error_handler)
+    app.register_error_handler(db.SaveConditionError, mongoengine_save_condition_error_handler)
+    app.register_error_handler(db.DeprecatedError, mongoengine_deprecated_error_handler)
+
     return app
   
 # app    
@@ -90,6 +167,7 @@ def create_app():
     app = JsonApp(Flask(__name__))
     config_name = ENV
     app.config.from_object(config_by_name[config_name])
+    app.testing = True
     db.init_app(app)
 
     return app

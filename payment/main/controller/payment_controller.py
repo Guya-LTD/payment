@@ -111,7 +111,9 @@ Functions:
 
 """
 from flask_restplus import Resource
+from werkzeug.exceptions import BadRequest, InternalServerError
 
+from ..repository.payment import Payment
 from ..dtos.payment_dto import PaymentDto
 
 api = PaymentDto.api
@@ -220,4 +222,54 @@ class PaymentList(Resource):
             Json Dictionaries
 
         """
-        pass
+        api.abort(405)
+
+    @api.expect(_request, validate = True)
+    def post(self):
+        """Save data/datas to database
+
+        ...
+
+        Returns
+        -------
+            Json Dictionaries
+
+        """
+        # start by validating request fields for extra security
+        # step 1 validation: strip payloads for empty string
+        if not api.payload['transaction_id'].strip() or \
+           not api.payload['transaction_date'].strip() or \
+           not api.payload['transaction_medium'].strip():
+           raise BadRequest({'payloads': api.payload})
+        
+        # init new payment object
+        payment = Payment(
+            transaction_id = api.payload['transaction_id'],
+            transaction_date = api.payload['transaction_date'],
+            transaction_medium = api.payload['transaction_medium']
+        )
+        
+        # persist to db
+        payment.save()
+
+        # if persisted in to db return id
+        if not payment.id:
+            # Return must always include the global fileds :
+            # Field           Datatype        Default         Description             Examples
+            # -----           --------        -------         -----------             --------
+            # code            int             201             1xx, 2xx, 3xx, 5xx
+            # description     string          Created         http code description
+            # messages        array           Null            any type of messages
+            # errors          array           Null            occured errors
+            # warnings        array           Null            can be url format
+            # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
+            return {
+                'code': 201,
+                'description': 'Created',
+                'message': None,
+                'errors': [],
+                'warnings': [],
+                'datas': [{'id': payment.id}]
+            }, 201
+        else:
+            raise InternalServerError({'payloads': api.payload})

@@ -26,40 +26,35 @@ Project
 """
 import unittest
 import json
-from flask_basic import app as tested_app
-
-_404 = ('The requested URL was not found on the server. '
-        'If you entered the URL manually please check your '
-        'spelling and try again.')
-
+from manager import app as test_app
+import requests
 class TestPaymentApi(unittest.TestCase):
-    def setup(self):
-       # creating a FlaskClient instance to interact with the app
-       app = tested_app.test_client()
+    def setUp(self):
+        # creating a FlaskClient instance to interact with the app
+        self.app = test_app.test_client()
 
-    def test_proper_404(self):
-        # calling a non existing endpoint
-        res = self.app.get('/api/v1/payments/dwdwqqwdwqd')
+    
 
-        # yeah it's not there
-        self.assertEqual(res.status_code, 404)
-
-        # but we still get a nice JSON body
-        body = json.loads(str(res.data, 'utf8'))
-        self.assertEqual(body['code'], 404)
-        self.assertEqual(body['message'], '404: Not Found')
-        self.assertEqual(body['description'], _404)
-
-    def test_raise(self):
+    #def test_raise(self):
         # this won't raise a Python exception but return a 500
-        res = self.app.get('/api/v1/payments')
-        body = json.loads(str(res.data, 'utf8'))
-        self.assertEqual(body['code'], 500)
+     #   res = self.app.get('/api/v1/payments')
+      #  body = json.loads(str(res.data, 'utf8'))
+       # self.assertEqual(body['code'], 500)
 
-    def test_payment_get_api(self):
+    
+
+    def test_payment_post_api(self):
+        data = dict(
+            user_id = '834mhdc8v34lnvalj',
+            order_tracking_id = '94820',
+            transaction_id = 'AAAAAAAAAAAAA',
+            transaction_date = '28/4/2012',
+            transaction_medium = 'MBirr' 
+        )
         # calling apis endpoint
-        payments = app.get('/api/v1/payments')
+        res = self.app.post('/api/v1/payments', json=data)
+        print(res.data)
+        # asserting status code
+        self.assertEqual(res.status_code, 201)
 
-        # asserting the body
-        body = json.loads(str(hello, 'utf8'))
-
+    

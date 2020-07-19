@@ -35,11 +35,11 @@ class Config:
     
     TESTING = os.environ.get('TESTING') or True
 
-    MONGODB_DB = os.environ.get('DB_NAME')
+    MONGODB_DB = os.environ.get('DB_NAME') or 'payment_db'
     
-    MONGODB_HOST = os.environ.get('DB_HOST')
+    MONGODB_HOST = os.environ.get('DB_HOST') or 'mongo'
 
-    MONGODB_PORT =  int(os.environ.get('DB_PORT'))\
+    MONGODB_PORT =  int(os.environ.get('DB_PORT') or 27017)
 
 
 class Prodconfig(Config):

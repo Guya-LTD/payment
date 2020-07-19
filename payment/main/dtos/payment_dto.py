@@ -27,14 +27,14 @@ Project
 
 from flask_restplus import Namespace, fields
 
-class FootstepDto:
+class PaymentDto:
     """Request and Respons Data Transfer Object"""
 
     api = Namespace('Payment', description = 'Footstep related operations')
 
 
     request = api.model('payment_request', {
-        'user_id' : fields.String(required = True, description = ''),
+        #'user_id' : fields.String(required = True, description = ''),
         'order_tracking_id' : fields.String(required = True, description = ''),
         'transaction_id' : fields.String(required = True, description = ''),
         'transaction_date' : fields.String(required = True, description = ''),

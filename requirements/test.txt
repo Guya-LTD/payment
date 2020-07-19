@@ -1,4 +1,5 @@
 # Same for dev...
 -r common.txt
 
+requests
 mongomock
