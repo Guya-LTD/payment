@@ -110,11 +110,14 @@ Functions:
     * delete - return delation status
 
 """
+from flask import jsonify, make_response
 from flask_restplus import Resource
-from werkzeug.exceptions import BadRequest, InternalServerError
+from werkzeug.exceptions import InternalServerError
+from bson import ObjectId
 
 from ..repository.payment import Payment
 from ..dtos.payment_dto import PaymentDto
+from ..exception import ValueEmpty, InvalidObjectId, DocumentDoesNotExist
 
 api = PaymentDto.api
 _request = PaymentDto.request
@@ -237,13 +240,15 @@ class PaymentList(Resource):
         """
         # start by validating request fields for extra security
         # step 1 validation: strip payloads for empty string
-        if not api.payload['transaction_id'].strip() or \
+        if not api.payload['order_tracking_id'].strip() or \
+           not api.payload['transaction_id'].strip() or \
            not api.payload['transaction_date'].strip() or \
            not api.payload['transaction_medium'].strip():
-           raise BadRequest({'payloads': api.payload})
+           raise ValueEmpty({'payloads': api.payload})
         
         # init new payment object
         payment = Payment(
+            order_tracking_id = api.payload['order_tracking_id'],
             transaction_id = api.payload['transaction_id'],
             transaction_date = api.payload['transaction_date'],
             transaction_medium = api.payload['transaction_medium']
@@ -253,7 +258,7 @@ class PaymentList(Resource):
         payment.save()
 
         # if persisted in to db return id
-        if not payment.id:
+        if isinstance(payment.id, ObjectId):
             # Return must always include the global fileds :
             # Field           Datatype        Default         Description             Examples
             # -----           --------        -------         -----------             --------
@@ -263,13 +268,226 @@ class PaymentList(Resource):
             # errors          array           Null            occured errors
             # warnings        array           Null            can be url format
             # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
-            return {
+            res = make_response
+            return make_response(jsonify({
                 'code': 201,
                 'description': 'Created',
                 'message': None,
                 'errors': [],
                 'warnings': [],
-                'datas': [{'id': payment.id}]
-            }, 201
+                'datas': []
+            }), 201)
         else:
-            raise InternalServerError({'payloads': api.payload})
+            raise InternalServerError({'payloads': api.payload, 'description': 'Server failed to save payload'})
+
+
+@api.route('/<int:id>')
+@api.response(100, 'Continue')
+@api.response(101, 'Switching Protocols')
+@api.response(102, 'Processing')
+@api.response(103, 'Early Hints (RFC 8297)')
+@api.response(200, 'Ok')
+@api.response(201, 'Created')
+@api.response(202, 'Accepted')
+@api.response(203, 'Non-Authoritative Information')
+@api.response(204, 'No Content')
+@api.response(205, 'Reset Content')
+@api.response(206, 'Partial Content')
+@api.response(207, 'Multi-Status')
+@api.response(208, 'Already Reported')
+@api.response(226, 'IM Used')
+@api.response(300, 'Multiple Choices')
+@api.response(301, 'Moved Permanently')
+@api.response(302, 'Found (Previously "Moved temporarily")')
+@api.response(303, 'See Other')
+@api.response(304, 'Not Modified')
+@api.response(305, 'Use Proxy')
+@api.response(306, 'Switch Proxy')
+@api.response(307, 'Temporary Redirect')
+@api.response(308, 'Permanent Redirect')
+@api.response(400, 'Bad  Request')
+@api.response(401, 'Unauthorized')
+@api.response(402, 'Payment Required')
+@api.response(403, 'Forbidden')
+@api.response(404, 'Not Found')
+@api.response(405, 'Method Not Allowed')
+@api.response(406, 'Not Acceptable')
+@api.response(407, 'Proxy Authentication Required')
+@api.response(408, 'Request Timeout')
+@api.response(409, 'Conflict')
+@api.response(410, 'Gone')
+@api.response(411, 'Length Required')
+@api.response(412, 'Precondition Failed')
+@api.response(413, 'Payload Too Large')
+@api.response(414, 'URI Too Long')
+@api.response(415, 'Unsupported Media Type')
+@api.response(416, 'Range Not Satisfiable')
+@api.response(417, 'Expection Failed')
+@api.response(418, 'I\'m a teapot')
+@api.response(421, 'Misdirected Request')
+@api.response(422, 'Unprocessable Entity ')
+@api.response(423, 'Locked')
+@api.response(424, 'Failed Dependency')
+@api.response(425, 'Too Early')
+@api.response(426, 'Upgrade Required')
+@api.response(428, 'Precondition Required')
+@api.response(429, 'Too Many Requests')
+@api.response(431, 'Request Header Fields Too Large')
+@api.response(451, 'Unavailable For Legal Reasons')
+@api.response(500, 'Internal Server Error')
+@api.response(501, 'Not Implemented')
+@api.response(502, 'Bad Gateway')
+@api.response(503, 'Service Unavaliable')
+@api.response(504, 'Gateway Timeout')
+@api.response(505, 'HTTP Version Not Supported')
+@api.response(506, 'Variant Also Negotiates')
+@api.response(507, 'Insufficent Storage')
+@api.response(508, 'Loop Detected')
+@api.response(510, 'Not Extended')
+@api.response(511, 'Network Authentication Required')
+class PaymentResource(Resource):
+    """"Single Payment Related Operation
+
+    ...
+
+    Methods
+    -------
+    get(id:String) :
+        Get a data from database
+
+    put(id:String) :
+        Update a data from database
+
+    delete(id:String) :
+        Delete a data from database
+
+    """
+
+    def get(self, id):
+        """Get All/Semi datas from database
+
+        ...
+
+        Parameters
+        ----------
+        id : integer
+            Object Id, i.e 12-byte, 24 char hexadicmal
+
+        Returns
+        -------
+            Json Dictionaries
+
+        """
+        # start by validating request fields for extra security
+        # step 1 validation: valid if id is 12-hex
+        if not ObjectId.is_valid(id):
+            raise InvalidObjectId({'payloads': [{'id': id}]})
+
+        # retrieve a result that should be unique in the collection, use get(). 
+        # this will raise DoesNotExist if no document matches the query, 
+        # and MultipleObjectsReturned if more than one document matched the query
+        payment = Payment.objects.get(id = id)
+
+        # Return must always include the global fileds :
+        # Field           Datatype        Default         Description             Examples
+        # -----           --------        -------         -----------             --------
+        # code            int             201             1xx, 2xx, 3xx, 5xx
+        # description     string          Created         http code description
+        # messages        array           Null            any type of messages
+        # errors          array           Null            occured errors
+        # warnings        array           Null            can be url format
+        # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
+        res = make_response
+        return make_response(jsonify({
+            'code': 200,
+            'description': 'OK',
+            'message': None,
+            'errors': [],
+            'warnings': [],
+            'datas': [payment]
+        }), 200)
+
+
+
+    @api.expect(_request, validate = True)
+    def put(self, id):
+        """Update a data from database
+
+        ...
+
+        Parameters
+        ----------
+        id : String
+            Object Id, i.e 12-byte, 24 char hexadicmal
+
+        Returns
+        -------
+            Json Dictionaries
+
+        """
+        # start by validating request fields for extra security
+        # step 1 validation: valid if id is 12-hex
+        if not ObjectId.is_valid(id):
+            raise InvalidObjectId({'payloads': [{'id': id}]})
+
+        # step 2 validation: check if document exists in collection
+        if not Payment.objects(id = id):
+            raise DocumentDoesNotExist({'payloads': [{'id': id}]})
+
+        # step 3 validation: strip payloads for empty string
+        if not api.payload['order_tracking_id'].strip() or \
+           not api.payload['transaction_id'].strip() or \
+           not api.payload['transaction_date'].strip() or \
+           not api.payload['transaction_medium'].strip():
+           raise ValueEmpty({'payloads': api.payload})
+
+        # update sets
+        payment = Payment.objects(id = id).update(
+            order_tracking_id = api.payload['order_tracking_id'],
+            transaction_id = api.payload['transaction_id'],
+            transaction_date = api.payload['transaction_date'],
+            transaction_medium = api.payload['transaction_medium']
+        )
+
+        # save to db
+        payment.reload()
+
+        if isinstance(payment.id, ObjectId):
+            # Return must always include the global fileds :
+            # Field           Datatype        Default         Description             Examples
+            # -----           --------        -------         -----------             --------
+            # code            int             201             1xx, 2xx, 3xx, 5xx
+            # description     string          Created         http code description
+            # messages        array           Null            any type of messages
+            # errors          array           Null            occured errors
+            # warnings        array           Null            can be url format
+            # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
+            res = make_response
+            return make_response(jsonify({
+                'code': 200,
+                'description': 'OK',
+                'message': None,
+                'errors': [],
+                'warnings': [],
+                'datas': []
+            }), 200)
+        else:
+            raise InternalServerError({'payloads': api.payload, 'description': 'Server failed to update document'})
+
+    def delete(self, id):
+        """Update a data from database
+
+        ...
+
+        Parameters
+        ----------
+        id : String
+            Object Id, i.e 12-byte, 24 char hexadicmal
+
+        Returns
+        -------
+            Json Dictionaries
+
+        """
+        # method not allowed
+        api.abort(405)

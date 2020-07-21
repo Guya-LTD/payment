@@ -1,3 +1,9 @@
+# Python vertual environment
+bin/
+lib64/
+pyvenv.cfg
+lib64
+
 # mongo datas
 .docker/mongo/data/db/*.wt
 .docker/mongo/data/db/*.data

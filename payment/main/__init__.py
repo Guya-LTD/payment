@@ -30,6 +30,7 @@ import logstash
 from flask import Flask, jsonify, abort
 from flask_mongoengine import MongoEngine
 from werkzeug.exceptions import HTTPException, default_exceptions
+from pymongo import errors as pymongoErrors
 
 from .config import config_by_name, os
 
@@ -88,11 +89,121 @@ def JsonApp(app):
         resp.status_code = result['code']
         return resp
 
+    # register http code errors
     for code in default_exceptions.keys():
         app.register_error_handler(code, error_handling)
 
+    ## pymongo exception handlers
+    def pymongo_generic_error_handler(error):
+        # formatting the exception
+        result = {
+            'code': 500, 
+            'description': 'Internal Server Error', 
+            'type': 'pymongo.errors',
+            'message': str(error)}
+
+        # logg exception
+        #logger.exception(str(error), extra=result.update(EXTRA))
+        resp = jsonify(result)
+        resp.status_code = 500
+        return resp
+
+    def pymongo_auto_reconnect_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_bulkwrite_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_collection_invalid_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_configuration_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_connection_failure_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_cursor_not_found_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_document_too_large_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_duplicate_key_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_encryption_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_exceede_max_waiters_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_execution_timeout_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_invalid_name_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_invalid_operation_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_invalid_uri_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_network_timeout_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_not_master_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_operation_failure_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_protocol_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_pymongo_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_server_selection_timeout_error_handler(error): 
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_wtimeout_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_write_concern_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    def pymongo_write_error_handler(error):
+        return pymongo_generic_error_handler(error)
+
+    # register errors
+    app.register_error_handler(pymongoErrors.AutoReconnect, pymongo_auto_reconnect_error_handler)
+    app.register_error_handler(pymongoErrors.BulkWriteError, pymongo_bulkwrite_error_handler)
+    app.register_error_handler(pymongoErrors.CollectionInvalid, pymongo_collection_invalid_error_handler)
+    app.register_error_handler(pymongoErrors.ConfigurationError, pymongo_configuration_error_handler)
+    app.register_error_handler(pymongoErrors.ConnectionFailure, pymongo_connection_failure_error_handler)
+    app.register_error_handler(pymongoErrors.CursorNotFound, pymongo_cursor_not_found_error_handler)
+    app.register_error_handler(pymongoErrors.DocumentTooLarge, pymongo_document_too_large_error_handler)
+    app.register_error_handler(pymongoErrors.DuplicateKeyError, pymongo_duplicate_key_error_handler)
+    app.register_error_handler(pymongoErrors.EncryptionError, pymongo_encryption_error_handler)
+    app.register_error_handler(pymongoErrors.ExceededMaxWaiters, pymongo_exceede_max_waiters_error_handler)
+    app.register_error_handler(pymongoErrors.ExecutionTimeout, pymongo_execution_timeout_error_handler)
+    app.register_error_handler(pymongoErrors.InvalidName, pymongo_invalid_name_error_handler)
+    app.register_error_handler(pymongoErrors.InvalidOperation, pymongo_invalid_operation_error_handler)
+    app.register_error_handler(pymongoErrors.InvalidURI, pymongo_invalid_uri_error_handler)
+    app.register_error_handler(pymongoErrors.NetworkTimeout, pymongo_network_timeout_error_handler)
+    app.register_error_handler(pymongoErrors.NotMasterError, pymongo_not_master_error_handler)
+    app.register_error_handler(pymongoErrors.OperationFailure, pymongo_operation_failure_error_handler)
+    app.register_error_handler(pymongoErrors.ProtocolError, pymongo_protocol_error_handler)
+    app.register_error_handler(pymongoErrors.PyMongoError, pymongo_pymongo_error_handler)
+    app.register_error_handler(pymongoErrors.ServerSelectionTimeoutError, pymongo_server_selection_timeout_error_handler)
+    app.register_error_handler(pymongoErrors.WTimeoutError, pymongo_wtimeout_error_handler)
+    app.register_error_handler(pymongoErrors.WriteConcernError, pymongo_write_concern_error_handler)
+    app.register_error_handler(pymongoErrors.WriteError, pymongo_write_error_handler)
+
     ## Mongoengine Exception handlers
-    def mongoengine_generic_error_handler(error):
+    def mongoengine_generic_error_handler(error, code = 500):
         # formatting the exception
         result = {
             'code': 500, 
@@ -103,7 +214,7 @@ def JsonApp(app):
         # logg exception
         #logger.exception(str(error), extra=result.update(EXTRA))
         resp = jsonify(result)
-        resp.status_code = 500
+        resp.status_code = code
         return resp
 
     def mongoengine_not_registered_error_handler(error):
@@ -116,7 +227,7 @@ def JsonApp(app):
         return mongoengine_generic_error_handler(error)
 
     def mongoengine_does_not_exist_error_handler(error):
-        return mongoengine_generic_error_handler(error)
+        return mongoengine_generic_error_handler(error = error, code = 204)
 
     def mongoengine_multiple_objects_returned_error_handler(error):
         return mongoengine_generic_error_handler(error)

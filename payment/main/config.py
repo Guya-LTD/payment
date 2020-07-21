@@ -37,9 +37,13 @@ class Config:
 
     MONGODB_DB = os.environ.get('DB_NAME') or 'payment_db'
     
-    MONGODB_HOST = os.environ.get('DB_HOST') or 'mongo'
+    MONGODB_HOST = os.environ.get('DB_HOST') or '0.0.0.0'
 
-    MONGODB_PORT =  int(os.environ.get('DB_PORT') or 27017)
+    MONGODB_PORT =  int(os.environ.get('DB_PORT') or 2220)
+
+    MONGODB_USERNAME = 'payment_user'
+
+    MONGODB_PASSWORD = 'payment_password'
 
 
 class Prodconfig(Config):
