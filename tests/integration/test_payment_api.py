@@ -26,12 +26,12 @@ Project
 """
 import unittest
 import json
-from manager import app as test_app
+from cart import create_app
 import requests
 class TestPaymentApi(unittest.TestCase):
     def setUp(self):
         # creating a FlaskClient instance to interact with the app
-        self.app = test_app.test_client()
+        self.app = create_app().test_client()
 
     def test_payments_get_api(self):
         # calling apis endpoint
