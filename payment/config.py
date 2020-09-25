@@ -14,15 +14,15 @@ LICENSE
 Authors
 -------
     * [Simon Belete](https://github.com/Simonbelete)
- 
+
 Project
 -------
-    * Name: 
+    * Name:
         - Guya E-commerce & Guya Express
     * Sub Project Name:
-        - Payment Service
+        - Cart service for Guya microservices
     * Description
-        - Payment Microservices service
+        - Cart mangement service
 """
 
 
@@ -42,8 +42,18 @@ class Config:
     """
 
     DEBUG = False
-    
+
     TESTING = False
+
+    MONGODB_DB = os.environ.get('MONGODB_DB')
+    
+    MONGODB_HOST = os.environ.get('MONGODB_HOST')
+
+    MONGODB_PORT = int(os.environ.get('MONGODB_PORT'))
+
+    MONGODB_USERNAME = os.environ.get('MONGODB_USERNAME')
+
+    MONGODB_PASSWORD = os.environ.get('MONGODB_PASSWORD')
 
 
 class Prodconfig(Config):

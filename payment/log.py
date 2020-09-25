@@ -61,3 +61,8 @@ logger.addHandler(
         os.getenv('LOGGING_PORT'), 
         version=1)
     )
+
+def log_exception(error, extra) -> None:
+    # recommanded for production or eithre the logging servier is running
+    logger.exception(str(error), extra = __extra__.update(extra))
+    #pass

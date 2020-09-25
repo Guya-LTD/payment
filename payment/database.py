@@ -41,9 +41,11 @@ This module provides means to perform operations on the database.
 """
 
 from flask import Flask
+from flask_mongoengine import MongoEngine
 
 
 # global vars
+db = MongoEngine()
 
 
 def init(app: Flask) -> None:
@@ -54,4 +56,4 @@ def init(app: Flask) -> None:
     ----------    
         app (flask.app.Flask): The application instance.
     """
-    pass
+    db.init_app(app)
