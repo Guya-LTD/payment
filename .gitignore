@@ -1,3 +1,9 @@
+# Python vertual environment
+bin/
+lib64/
+pyvenv.cfg
+lib64
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
