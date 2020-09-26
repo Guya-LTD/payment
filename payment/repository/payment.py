@@ -32,7 +32,7 @@ Project
 Version Requirements: 
     * flask-mongoengine v0.7
 """
-from .. import db
+from payment.database import db
 from ..model.payment import Payment as PaymentEntity
 from .mixins.transaction_mixin import TransactionMixin
 

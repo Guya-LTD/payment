@@ -42,12 +42,12 @@ responsible for initializing the application according
 to a previous configuration.
 """
 
-import schedule
-import time
+#import schedule
+#import time
 
-from payment.schedules.payment_approval import PaymentApproval
+#from payment.schedules.payment_approval import PaymentApproval
 
-schedule.every(10).minutes.do(PaymentApproval)
+#schedule.every(10).minutes.do(PaymentApproval)
 #schedule.every().hour.do(job)
 #schedule.every().day.at("10:30").do(job)
 #schedule.every(5).to(10).minutes.do(job)
@@ -55,6 +55,6 @@ schedule.every(10).minutes.do(PaymentApproval)
 #schedule.every().wednesday.at("13:15").do(job)
 #schedule.every().minute.at(":17").do(job)
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+#while True:
+#    schedule.run_pending()
+#    time.sleep(1)

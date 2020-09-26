@@ -49,10 +49,10 @@ from dotenv import load_dotenv
 from .blueprint.v1 import *
 from .config import config_by_name
 from .handlers import register_handler
-from .scheduler import *
+# from .scheduler import *
 
 # import all controllers
-from payment.controller.v1 import foo_controller
+from payment.controller.v1 import payment_controller
 
 # const vars
 __version__ = '0.0.1'

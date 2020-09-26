@@ -22,7 +22,7 @@ Project
     * Sub Project Name:
         - Payment Service
     * Description
-        - Payment api
+        - Payment namespace
 """
 
 """REST API Controller
@@ -115,78 +115,75 @@ from flask_restplus import Resource
 from werkzeug.exceptions import InternalServerError
 from bson import ObjectId
 
-from ..repository.payment import Payment
-from ..dtos.payment_dto import PaymentDto
-from ..exception import ValueEmpty, InvalidObjectId, DocumentDoesNotExist
+from payment.repository.payment import Payment
+from payment.dto.payment_dto import PaymentDto
+from payment.blueprint.v1.payment import namespace
+from payment.exception import ValueEmpty, InvalidObjectId, DocumentDoesNotExist
 
-api = PaymentDto.api
-_request = PaymentDto.request
-_response = PaymentDto.response
-
-@api.route('')
-@api.response(100, 'Continue')
-@api.response(101, 'Switching Protocols')
-@api.response(102, 'Processing')
-@api.response(103, 'Early Hints (RFC 8297)')
-@api.response(200, 'Ok')
-@api.response(201, 'Created')
-@api.response(202, 'Accepted')
-@api.response(203, 'Non-Authoritative Information')
-@api.response(204, 'No Content')
-@api.response(205, 'Reset Content')
-@api.response(206, 'Partial Content')
-@api.response(207, 'Multi-Status')
-@api.response(208, 'Already Reported')
-@api.response(226, 'IM Used')
-@api.response(300, 'Multiple Choices')
-@api.response(301, 'Moved Permanently')
-@api.response(302, 'Found (Previously "Moved temporarily")')
-@api.response(303, 'See Other')
-@api.response(304, 'Not Modified')
-@api.response(305, 'Use Proxy')
-@api.response(306, 'Switch Proxy')
-@api.response(307, 'Temporary Redirect')
-@api.response(308, 'Permanent Redirect')
-@api.response(400, 'Bad  Request')
-@api.response(401, 'Unauthorized')
-@api.response(402, 'Payment Required')
-@api.response(403, 'Forbidden')
-@api.response(404, 'Not Found')
-@api.response(405, 'Method Not Allowed')
-@api.response(406, 'Not Acceptable')
-@api.response(407, 'Proxy Authentication Required')
-@api.response(408, 'Request Timeout')
-@api.response(409, 'Conflict')
-@api.response(410, 'Gone')
-@api.response(411, 'Length Required')
-@api.response(412, 'Precondition Failed')
-@api.response(413, 'Payload Too Large')
-@api.response(414, 'URI Too Long')
-@api.response(415, 'Unsupported Media Type')
-@api.response(416, 'Range Not Satisfiable')
-@api.response(417, 'Expection Failed')
-@api.response(418, 'I\'m a teapot')
-@api.response(421, 'Misdirected Request')
-@api.response(422, 'Unprocessable Entity ')
-@api.response(423, 'Locked')
-@api.response(424, 'Failed Dependency')
-@api.response(425, 'Too Early')
-@api.response(426, 'Upgrade Required')
-@api.response(428, 'Precondition Required')
-@api.response(429, 'Too Many Requests')
-@api.response(431, 'Request Header Fields Too Large')
-@api.response(451, 'Unavailable For Legal Reasons')
-@api.response(500, 'Internal Server Error')
-@api.response(501, 'Not Implemented')
-@api.response(502, 'Bad Gateway')
-@api.response(503, 'Service Unavaliable')
-@api.response(504, 'Gateway Timeout')
-@api.response(505, 'HTTP Version Not Supported')
-@api.response(506, 'Variant Also Negotiates')
-@api.response(507, 'Insufficent Storage')
-@api.response(508, 'Loop Detected')
-@api.response(510, 'Not Extended')
-@api.response(511, 'Network Authentication Required')
+@namespace.route('')
+@namespace.response(100, 'Continue')
+@namespace.response(101, 'Switching Protocols')
+@namespace.response(102, 'Processing')
+@namespace.response(103, 'Early Hints (RFC 8297)')
+@namespace.response(200, 'Ok')
+@namespace.response(201, 'Created')
+@namespace.response(202, 'Accepted')
+@namespace.response(203, 'Non-Authoritative Information')
+@namespace.response(204, 'No Content')
+@namespace.response(205, 'Reset Content')
+@namespace.response(206, 'Partial Content')
+@namespace.response(207, 'Multi-Status')
+@namespace.response(208, 'Already Reported')
+@namespace.response(226, 'IM Used')
+@namespace.response(300, 'Multiple Choices')
+@namespace.response(301, 'Moved Permanently')
+@namespace.response(302, 'Found (Previously "Moved temporarily")')
+@namespace.response(303, 'See Other')
+@namespace.response(304, 'Not Modified')
+@namespace.response(305, 'Use Proxy')
+@namespace.response(306, 'Switch Proxy')
+@namespace.response(307, 'Temporary Redirect')
+@namespace.response(308, 'Permanent Redirect')
+@namespace.response(400, 'Bad  Request')
+@namespace.response(401, 'Unauthorized')
+@namespace.response(402, 'Payment Required')
+@namespace.response(403, 'Forbidden')
+@namespace.response(404, 'Not Found')
+@namespace.response(405, 'Method Not Allowed')
+@namespace.response(406, 'Not Acceptable')
+@namespace.response(407, 'Proxy Authentication Required')
+@namespace.response(408, 'Request Timeout')
+@namespace.response(409, 'Conflict')
+@namespace.response(410, 'Gone')
+@namespace.response(411, 'Length Required')
+@namespace.response(412, 'Precondition Failed')
+@namespace.response(413, 'Payload Too Large')
+@namespace.response(414, 'URI Too Long')
+@namespace.response(415, 'Unsupported Media Type')
+@namespace.response(416, 'Range Not Satisfiable')
+@namespace.response(417, 'Expection Failed')
+@namespace.response(418, 'I\'m a teapot')
+@namespace.response(421, 'Misdirected Request')
+@namespace.response(422, 'Unprocessable Entity ')
+@namespace.response(423, 'Locked')
+@namespace.response(424, 'Failed Dependency')
+@namespace.response(425, 'Too Early')
+@namespace.response(426, 'Upgrade Required')
+@namespace.response(428, 'Precondition Required')
+@namespace.response(429, 'Too Many Requests')
+@namespace.response(431, 'Request Header Fields Too Large')
+@namespace.response(451, 'Unavailable For Legal Reasons')
+@namespace.response(500, 'Internal Server Error')
+@namespace.response(501, 'Not Implemented')
+@namespace.response(502, 'Bad Gateway')
+@namespace.response(503, 'Service Unavaliable')
+@namespace.response(504, 'Gateway Timeout')
+@namespace.response(505, 'HTTP Version Not Supported')
+@namespace.response(506, 'Variant Also Negotiates')
+@namespace.response(507, 'Insufficent Storage')
+@namespace.response(508, 'Loop Detected')
+@namespace.response(510, 'Not Extended')
+@namespace.response(511, 'Network Authentication Required')
 class PaymentList(Resource):
     """Payment Related Operation
 
@@ -225,9 +222,9 @@ class PaymentList(Resource):
             Json Dictionaries
 
         """
-        api.abort(405)
+        namespace.abort(405)
 
-    @api.expect(_request, validate = True)
+    @namespace.expect(PaymentDto.request, validate = True)
     def post(self):
         """Save data/datas to database
 
@@ -240,18 +237,18 @@ class PaymentList(Resource):
         """
         # start by validating request fields for extra security
         # step 1 validation: strip payloads for empty string
-        if not api.payload['invoice_number'].strip() or \
-           not api.payload['transaction_id'].strip() or \
-           not api.payload['transaction_date'].strip() or \
-           not api.payload['transaction_medium'].strip():
-           raise ValueEmpty({'payloads': api.payload})
+        if not namespace.payload['invoice_number'].strip() or \
+           not namespace.payload['transaction_id'].strip() or \
+           not namespace.payload['transaction_date'].strip() or \
+           not namespace.payload['transaction_medium'].strip():
+           raise ValueEmpty({'payloads': namespace.payload})
         
         # init new payment object
         payment = Payment(
-            invoice_number = api.payload['invoice_number'],
-            transaction_id = api.payload['transaction_id'],
-            transaction_date = api.payload['transaction_date'],
-            transaction_medium = api.payload['transaction_medium']
+            invoice_number = namespace.payload['invoice_number'],
+            transaction_id = namespace.payload['transaction_id'],
+            transaction_date = namespace.payload['transaction_date'],
+            transaction_medium = namespace.payload['transaction_medium']
         )
         
         # persist to db
@@ -278,73 +275,73 @@ class PaymentList(Resource):
                 'datas': []
             }), 201)
         else:
-            raise InternalServerError({'payloads': api.payload, 'description': 'Server failed to save payload'})
+            raise InternalServerError({'payloads': namespace.payload, 'description': 'Server failed to save payload'})
 
 
-@api.route('/<int:id>')
-@api.response(100, 'Continue')
-@api.response(101, 'Switching Protocols')
-@api.response(102, 'Processing')
-@api.response(103, 'Early Hints (RFC 8297)')
-@api.response(200, 'Ok')
-@api.response(201, 'Created')
-@api.response(202, 'Accepted')
-@api.response(203, 'Non-Authoritative Information')
-@api.response(204, 'No Content')
-@api.response(205, 'Reset Content')
-@api.response(206, 'Partial Content')
-@api.response(207, 'Multi-Status')
-@api.response(208, 'Already Reported')
-@api.response(226, 'IM Used')
-@api.response(300, 'Multiple Choices')
-@api.response(301, 'Moved Permanently')
-@api.response(302, 'Found (Previously "Moved temporarily")')
-@api.response(303, 'See Other')
-@api.response(304, 'Not Modified')
-@api.response(305, 'Use Proxy')
-@api.response(306, 'Switch Proxy')
-@api.response(307, 'Temporary Redirect')
-@api.response(308, 'Permanent Redirect')
-@api.response(400, 'Bad  Request')
-@api.response(401, 'Unauthorized')
-@api.response(402, 'Payment Required')
-@api.response(403, 'Forbidden')
-@api.response(404, 'Not Found')
-@api.response(405, 'Method Not Allowed')
-@api.response(406, 'Not Acceptable')
-@api.response(407, 'Proxy Authentication Required')
-@api.response(408, 'Request Timeout')
-@api.response(409, 'Conflict')
-@api.response(410, 'Gone')
-@api.response(411, 'Length Required')
-@api.response(412, 'Precondition Failed')
-@api.response(413, 'Payload Too Large')
-@api.response(414, 'URI Too Long')
-@api.response(415, 'Unsupported Media Type')
-@api.response(416, 'Range Not Satisfiable')
-@api.response(417, 'Expection Failed')
-@api.response(418, 'I\'m a teapot')
-@api.response(421, 'Misdirected Request')
-@api.response(422, 'Unprocessable Entity ')
-@api.response(423, 'Locked')
-@api.response(424, 'Failed Dependency')
-@api.response(425, 'Too Early')
-@api.response(426, 'Upgrade Required')
-@api.response(428, 'Precondition Required')
-@api.response(429, 'Too Many Requests')
-@api.response(431, 'Request Header Fields Too Large')
-@api.response(451, 'Unavailable For Legal Reasons')
-@api.response(500, 'Internal Server Error')
-@api.response(501, 'Not Implemented')
-@api.response(502, 'Bad Gateway')
-@api.response(503, 'Service Unavaliable')
-@api.response(504, 'Gateway Timeout')
-@api.response(505, 'HTTP Version Not Supported')
-@api.response(506, 'Variant Also Negotiates')
-@api.response(507, 'Insufficent Storage')
-@api.response(508, 'Loop Detected')
-@api.response(510, 'Not Extended')
-@api.response(511, 'Network Authentication Required')
+@namespace.route('/<int:id>')
+@namespace.response(100, 'Continue')
+@namespace.response(101, 'Switching Protocols')
+@namespace.response(102, 'Processing')
+@namespace.response(103, 'Early Hints (RFC 8297)')
+@namespace.response(200, 'Ok')
+@namespace.response(201, 'Created')
+@namespace.response(202, 'Accepted')
+@namespace.response(203, 'Non-Authoritative Information')
+@namespace.response(204, 'No Content')
+@namespace.response(205, 'Reset Content')
+@namespace.response(206, 'Partial Content')
+@namespace.response(207, 'Multi-Status')
+@namespace.response(208, 'Already Reported')
+@namespace.response(226, 'IM Used')
+@namespace.response(300, 'Multiple Choices')
+@namespace.response(301, 'Moved Permanently')
+@namespace.response(302, 'Found (Previously "Moved temporarily")')
+@namespace.response(303, 'See Other')
+@namespace.response(304, 'Not Modified')
+@namespace.response(305, 'Use Proxy')
+@namespace.response(306, 'Switch Proxy')
+@namespace.response(307, 'Temporary Redirect')
+@namespace.response(308, 'Permanent Redirect')
+@namespace.response(400, 'Bad  Request')
+@namespace.response(401, 'Unauthorized')
+@namespace.response(402, 'Payment Required')
+@namespace.response(403, 'Forbidden')
+@namespace.response(404, 'Not Found')
+@namespace.response(405, 'Method Not Allowed')
+@namespace.response(406, 'Not Acceptable')
+@namespace.response(407, 'Proxy Authentication Required')
+@namespace.response(408, 'Request Timeout')
+@namespace.response(409, 'Conflict')
+@namespace.response(410, 'Gone')
+@namespace.response(411, 'Length Required')
+@namespace.response(412, 'Precondition Failed')
+@namespace.response(413, 'Payload Too Large')
+@namespace.response(414, 'URI Too Long')
+@namespace.response(415, 'Unsupported Media Type')
+@namespace.response(416, 'Range Not Satisfiable')
+@namespace.response(417, 'Expection Failed')
+@namespace.response(418, 'I\'m a teapot')
+@namespace.response(421, 'Misdirected Request')
+@namespace.response(422, 'Unprocessable Entity ')
+@namespace.response(423, 'Locked')
+@namespace.response(424, 'Failed Dependency')
+@namespace.response(425, 'Too Early')
+@namespace.response(426, 'Upgrade Required')
+@namespace.response(428, 'Precondition Required')
+@namespace.response(429, 'Too Many Requests')
+@namespace.response(431, 'Request Header Fields Too Large')
+@namespace.response(451, 'Unavailable For Legal Reasons')
+@namespace.response(500, 'Internal Server Error')
+@namespace.response(501, 'Not Implemented')
+@namespace.response(502, 'Bad Gateway')
+@namespace.response(503, 'Service Unavaliable')
+@namespace.response(504, 'Gateway Timeout')
+@namespace.response(505, 'HTTP Version Not Supported')
+@namespace.response(506, 'Variant Also Negotiates')
+@namespace.response(507, 'Insufficent Storage')
+@namespace.response(508, 'Loop Detected')
+@namespace.response(510, 'Not Extended')
+@namespace.response(511, 'Network Authentication Required')
 class PaymentResource(Resource):
     """"Single Payment Related Operation
 
@@ -409,7 +406,7 @@ class PaymentResource(Resource):
 
 
 
-    @api.expect(_request, validate = True)
+    @namespace.expect(PaymentDto.request, validate = True)
     def put(self, id):
         """Update a data from database
 
@@ -435,18 +432,18 @@ class PaymentResource(Resource):
             raise DocumentDoesNotExist({'payloads': [{'id': id}]})
 
         # step 3 validation: strip payloads for empty string
-        if not api.payload['invoice_number'].strip() or \
-           not api.payload['transaction_id'].strip() or \
-           not api.payload['transaction_date'].strip() or \
-           not api.payload['transaction_medium'].strip():
-           raise ValueEmpty({'payloads': api.payload})
+        if not namespace.payload['invoice_number'].strip() or \
+           not namespace.payload['transaction_id'].strip() or \
+           not namespace.payload['transaction_date'].strip() or \
+           not namespace.payload['transaction_medium'].strip():
+           raise ValueEmpty({'payloads': namespace.payload})
 
         # update sets
         payment = Payment.objects(id = id).update(
-            invoice_number = api.payload['invoice_number'],
-            transaction_id = api.payload['transaction_id'],
-            transaction_date = api.payload['transaction_date'],
-            transaction_medium = api.payload['transaction_medium']
+            invoice_number = namespace.payload['invoice_number'],
+            transaction_id = namespace.payload['transaction_id'],
+            transaction_date = namespace.payload['transaction_date'],
+            transaction_medium = namespace.payload['transaction_medium']
         )
 
         # save to db
@@ -472,7 +469,7 @@ class PaymentResource(Resource):
                 'datas': []
             }), 200)
         else:
-            raise InternalServerError({'payloads': api.payload, 'description': 'Server failed to update document'})
+            raise InternalServerError({'payloads': namespace.payload, 'description': 'Server failed to update document'})
 
     def delete(self, id):
         """Update a data from database
@@ -490,4 +487,4 @@ class PaymentResource(Resource):
 
         """
         # method not allowed
-        api.abort(405)
+        namespace.abort(405)

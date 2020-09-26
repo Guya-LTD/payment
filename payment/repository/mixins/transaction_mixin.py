@@ -35,7 +35,7 @@ Version Requirements:
 from datetime import datetime
 from pytz import timezone
 
-from ... import db
+from payment.database import db
 
 class TransactionMixin(object):
     """Time Stamped Mixin

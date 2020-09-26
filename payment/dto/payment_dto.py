@@ -24,13 +24,12 @@ Project
 
 from flask_restplus import Namespace, fields
 
+from payment.blueprint.v1.payment import namespace
+
 class PaymentDto:
     """Request and Respons Data Transfer Object"""
 
-    api = Namespace('Payment', description = 'Footstep related operations')
-
-
-    request = api.model('payment_request', {
+    request = namespace.model('payment_request', {
         #'user_id' : fields.String(required = True, description = ''),
         'invoice_number' : fields.String(required = True, description = ''),
         'transaction_id' : fields.String(required = True, description = ''),
@@ -39,5 +38,5 @@ class PaymentDto:
     })
 
 
-    response = api.model('payment_response', {
+    response = namespace.model('payment_response', {
     })

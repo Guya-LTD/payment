@@ -10,4 +10,6 @@ werkzeug~=0.16.1
 flask-mongoengine
 python-semantic-release
 schedule
-git+git://github.com/Guya-LTD/python-logstash.git#egg=python-logstash
+# git+git://github.com/Guya-LTD/python-logstash.git#egg=python-logstash
+
+https://github.com/Guya-LTD/python-logstash/archive/master.zip

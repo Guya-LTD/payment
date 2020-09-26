@@ -32,7 +32,7 @@ Project
 Version Requirements: 
     * flask-mongoengine v0.7
 """
-from ... import db
+from payment.database import db
 
 class UserMixin(object):
     """Time Stamped Mixin
