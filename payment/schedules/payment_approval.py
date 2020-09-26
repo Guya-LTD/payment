@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Copyright Header Details
 
 Copyright
@@ -35,14 +37,11 @@ Application features:
     PEP-8 for code style
 
 
-Blueprint to organize and group, views related
-to the '/payments' endpoint of HTTP REST API.
+This module contains the factory function 'create_app' that is
+responsible for initializing the application according
+to a previous configuration.
 """
 
-from flask_restplus import Namespace
-
-from . import api
-
-namespace = Namespace('Payment', description = 'Payment api')
-
-api.add_namespace(namespace, path = '/payments')
+class PaymentApproval:
+    def __init__(self):
+        pass

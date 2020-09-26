@@ -32,7 +32,7 @@ class TestPaymentRepository(unittest.TestCase):
     def test_payment_creation(self):
         payment = PaymentRepository(
            user_id = '555AAAAA',
-           order_tracking_id = '8899',
+           invoice_number = '8899',
            transaction_id = 'AAAAAAAAAAAAA',
            transaction_date = '28/4/2012',
            transaction_medium = 'MBirr' 

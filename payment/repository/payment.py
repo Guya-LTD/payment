@@ -52,6 +52,6 @@ class Payment(db.Document, PaymentEntity, TransactionMixin):
 
     """
 
-    user_id = db.StringField()
+    user_id = db.StringField(required = True)
 
-    order_tracking_id = db.StringField(required = True)
+    invoice_number = db.StringField(required = True)

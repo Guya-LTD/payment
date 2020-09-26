@@ -42,7 +42,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_with_empty_payload(self):
         data = dict(
             user_id = '',
-            order_tracking_id = '',
+            invoice_number = '',
             transaction_id = '',
             transaction_date = '',
             transaction_medium = '' 
@@ -55,7 +55,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_non_json_payload(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '94820',
+            invoice_number = '94820',
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -68,7 +68,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_with_space_payload(self):
         data = dict(
             user_id = ' ',
-            order_tracking_id = ' ',
+            invoice_number = ' ',
             transaction_id = ' ',
             transaction_date = ' ',
             transaction_medium = ' ' 
@@ -81,7 +81,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '94820',
+            invoice_number = '94820',
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -91,10 +91,10 @@ class TestPaymentApi(unittest.TestCase):
         # asserting status code
         self.assertEqual(res.status_code, 201)
 
-    def test_payment_post_api_with_empty_order_tracking_id(self):
+    def test_payment_post_api_with_empty_invoice_number(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '',
+            invoice_number = '',
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -104,10 +104,10 @@ class TestPaymentApi(unittest.TestCase):
         # asserting status code
         self.assertEqual(res.status_code, 400)
 
-    def test_payment_post_api_with_none_order_tracking_id(self):
+    def test_payment_post_api_with_none_invoice_number(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = None,
+            invoice_number = None,
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -117,10 +117,10 @@ class TestPaymentApi(unittest.TestCase):
         # asserting status code
         self.assertEqual(res.status_code, 400)
 
-    def test_payment_post_api_without_order_tracking_id_key(self):
+    def test_payment_post_api_without_invoice_number_key(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            #order_tracking_id = '94820',
+            #invoice_number = '94820',
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -130,16 +130,16 @@ class TestPaymentApi(unittest.TestCase):
         # asserting status code
         self.assertEqual(res.status_code, 400)
 
-    def test_payment_post_api_test_order_tracking_id_datatype(self):
+    def test_payment_post_api_test_invoice_number_datatype(self):
         pass
 
-    def test_payment_post_api_test_order_tracking_id_redundancia(self):
+    def test_payment_post_api_test_invoice_number_redundancia(self):
         pass
 
     def test_payment_post_api_with_empty_transaction_id(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '95555',
+            invoice_number = '95555',
             transaction_id = '',
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -152,7 +152,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_with_none_transaction_id(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '22223',
+            invoice_number = '22223',
             transaction_id = None,
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -165,7 +165,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_without_transaction_id_key(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '94820',
+            invoice_number = '94820',
             #transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -184,7 +184,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_with_empty_transaction_date(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '343d3g435435',
+            invoice_number = '343d3g435435',
             transaction_id = '',
             transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -197,7 +197,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_with_none_transaction_date(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = 'kjkljljk',
+            invoice_number = 'kjkljljk',
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = None,
             transaction_medium = 'MBirr' 
@@ -210,7 +210,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_without_transaction_date_key(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '94820',
+            invoice_number = '94820',
             transaction_id = 'AAAAAAAAAAAAA',
             #transaction_date = '28/4/2012',
             transaction_medium = 'MBirr' 
@@ -226,7 +226,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_with_empty_transaction_medium(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '8789',
+            invoice_number = '8789',
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = '',
             transaction_medium = 'MBirr' 
@@ -239,7 +239,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_with_none_transaction_medium(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '99452',
+            invoice_number = '99452',
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = None,
             transaction_medium = 'MBirr' 
@@ -252,7 +252,7 @@ class TestPaymentApi(unittest.TestCase):
     def test_payment_post_api_without_transaction_medium_key(self):
         data = dict(
             user_id = '834mhdc8v34lnvalj',
-            order_tracking_id = '94820',
+            invoice_number = '94820',
             transaction_id = 'AAAAAAAAAAAAA',
             transaction_date = '28/4/2012',
             #transaction_medium = 'MBirr' 

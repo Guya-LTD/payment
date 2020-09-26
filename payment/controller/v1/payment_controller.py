@@ -240,7 +240,7 @@ class PaymentList(Resource):
         """
         # start by validating request fields for extra security
         # step 1 validation: strip payloads for empty string
-        if not api.payload['order_tracking_id'].strip() or \
+        if not api.payload['invoice_number'].strip() or \
            not api.payload['transaction_id'].strip() or \
            not api.payload['transaction_date'].strip() or \
            not api.payload['transaction_medium'].strip():
@@ -248,7 +248,7 @@ class PaymentList(Resource):
         
         # init new payment object
         payment = Payment(
-            order_tracking_id = api.payload['order_tracking_id'],
+            invoice_number = api.payload['invoice_number'],
             transaction_id = api.payload['transaction_id'],
             transaction_date = api.payload['transaction_date'],
             transaction_medium = api.payload['transaction_medium']
@@ -435,7 +435,7 @@ class PaymentResource(Resource):
             raise DocumentDoesNotExist({'payloads': [{'id': id}]})
 
         # step 3 validation: strip payloads for empty string
-        if not api.payload['order_tracking_id'].strip() or \
+        if not api.payload['invoice_number'].strip() or \
            not api.payload['transaction_id'].strip() or \
            not api.payload['transaction_date'].strip() or \
            not api.payload['transaction_medium'].strip():
@@ -443,7 +443,7 @@ class PaymentResource(Resource):
 
         # update sets
         payment = Payment.objects(id = id).update(
-            order_tracking_id = api.payload['order_tracking_id'],
+            invoice_number = api.payload['invoice_number'],
             transaction_id = api.payload['transaction_id'],
             transaction_date = api.payload['transaction_date'],
             transaction_medium = api.payload['transaction_medium']
