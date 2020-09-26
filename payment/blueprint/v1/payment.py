@@ -45,4 +45,4 @@ from . import api
 
 namespace = Namespace('Payment', description = 'Payment api')
 
-api.add_namespace(namespace, path = '/payments')
+api.add_namespace(namespace, path = '/api/v1/payments')

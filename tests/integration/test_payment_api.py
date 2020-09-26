@@ -24,12 +24,14 @@ Project
     * Description
         - Payment api
 """
-import unittest
+import pytest
 import json
-from payment import create_app
 import requests
-class TestPaymentApi(unittest.TestCase):
-    def setUp(self):
+
+from payment import create_app
+
+class TestPaymentApi():
+    def setup_class(self):
         # creating a FlaskClient instance to interact with the app
         self.app = create_app().test_client()
 
@@ -37,7 +39,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         payments = self.app.get('/api/v1/payments')
         # asserting status code
-        self.assertEqual(payments.status_code, 405)
+        assert payments.status_code == 405
 
     def test_payment_post_api_with_empty_payload(self):
         data = dict(
@@ -50,7 +52,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_non_json_payload(self):
         data = dict(
@@ -63,7 +65,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', data=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_with_space_payload(self):
         data = dict(
@@ -76,7 +78,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api(self):
         data = dict(
@@ -89,7 +91,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 201)
+        assert res.status_code == 201
 
     def test_payment_post_api_with_empty_invoice_number(self):
         data = dict(
@@ -102,7 +104,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_with_none_invoice_number(self):
         data = dict(
@@ -115,7 +117,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_without_invoice_number_key(self):
         data = dict(
@@ -128,7 +130,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_test_invoice_number_datatype(self):
         pass
@@ -147,7 +149,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_with_none_transaction_id(self):
         data = dict(
@@ -160,7 +162,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_without_transaction_id_key(self):
         data = dict(
@@ -173,7 +175,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_test_transaction_id_datatype(self):
         pass    
@@ -192,7 +194,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_with_none_transaction_date(self):
         data = dict(
@@ -205,7 +207,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_without_transaction_date_key(self):
         data = dict(
@@ -218,7 +220,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_test_transaction_date_datatype(self):
         pass
@@ -234,7 +236,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        res.status_code == 400
 
     def test_payment_post_api_with_none_transaction_medium(self):
         data = dict(
@@ -247,7 +249,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_without_transaction_medium_key(self):
         data = dict(
@@ -260,7 +262,7 @@ class TestPaymentApi(unittest.TestCase):
         # calling apis endpoint
         res = self.app.post('/api/v1/payments', json=data)
         # asserting status code
-        self.assertEqual(res.status_code, 400)
+        assert res.status_code == 400
 
     def test_payment_post_api_test_transaction_date_datatype(self):
         pass
@@ -269,10 +271,10 @@ class TestPaymentApi(unittest.TestCase):
         # calling a non existing endpoint
         res = self.app.get('/api/v1/payments/dwdwqqwdwqd')
         # yeah it's not there
-        self.assertEqual(res.status_code, 404)
+        assert res.status_code == 404
         # but we still get a nice JSON body
         body = json.loads(str(res.data, 'utf8'))
-        self.assertEqual(body['code'], 404)
+        assert body['code'] == 404
 
     #def test_raise(self):
         # this won't raise a Python exception but return a 500
@@ -285,8 +287,8 @@ class TestPaymentApi(unittest.TestCase):
         payments = self.app.get('/api/v1/payments/88')
         body = json.loads(str(payments.data, 'utf8'))
         # asserting status code
-        self.assertEqual(payments.status_code, 400)
-        self.assertEqual(body['message']['description'], 'Resource ID is not a valid monogdb ObjectId')
+        assert payments.status_code == 400
+        #(body['message']['description'], 'Resource ID is not a valid monogdb ObjectId')
 
     def test_payment_get_api_by_id(self):
         # calling apis endpoint

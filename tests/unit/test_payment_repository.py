@@ -24,11 +24,11 @@ Project
     * Description
         - Payment api
 """
-import unittest
+import pytest
 
-from payment.main.repository.payment import Payment as PaymentRepository, db
+from payment.repository.payment import Payment as PaymentRepository, db
 
-class TestPaymentRepository(unittest.TestCase):
+class TestPaymentRepository:
     def test_payment_creation(self):
         payment = PaymentRepository(
            user_id = '555AAAAA',
