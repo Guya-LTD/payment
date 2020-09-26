@@ -26,7 +26,7 @@ Project
 """
 import unittest
 import json
-from cart import create_app
+from payment import create_app
 import requests
 class TestPaymentApi(unittest.TestCase):
     def setUp(self):
