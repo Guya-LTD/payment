@@ -42,6 +42,7 @@ responsible for initializing the application according
 to a previous configuration.
 """
 
-class PaymentApproval:
-    def __init__(self):
-        print("Payment Approving")
+def checkAndApprove():
+    with app.app_context():
+        print("Approved")
+    

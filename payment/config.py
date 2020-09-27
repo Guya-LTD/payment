@@ -41,6 +41,17 @@ class Config:
         before and after changes are committed to the database.
     """
 
+    JOBS = [
+        {
+            'id': 'job1',
+            'func': 'payment.schedules.payment_approval:checkAndApprove',
+            'trigger': 'interval',
+            'seconds': 10
+        }
+    ]
+
+    SCHEDULER_API_ENABLED = True
+
     DEBUG = False
 
     TESTING = False

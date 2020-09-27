@@ -43,13 +43,13 @@ to a previous configuration.
 """
 
 import os
-from flask import Flask
+from flask import Flask, current_app
 from dotenv import load_dotenv
 
 from .blueprint.v1 import *
 from .config import config_by_name
 from .handlers import register_handler
-# from .scheduler import *
+from flask_apscheduler import APScheduler
 
 # import all controllers
 from payment.controller.v1 import payment_controller
@@ -63,7 +63,6 @@ __keywords__ = ''
 __repo_name__ = 'Payment Service'
 __description__ = 'Payment Microservices service'
 __project_name__ = 'Payment Service'
-
 
 def create_app(test_config: dict = {}) -> Flask:
     """This function is responsible to create a Flask instance according
@@ -90,8 +89,11 @@ def create_app(test_config: dict = {}) -> Flask:
     init_database(app)
     init_blueprints(app)
 
-    return app
+    scheduler = APScheduler()
+    scheduler.init_app(app) 
+    scheduler.start() 
 
+    return app
 
 def load_config(app: Flask) -> None:
     """Load the application's config
