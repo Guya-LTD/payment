@@ -22,9 +22,9 @@ Project
     * Name: 
         - Guya E-commerce & Guya Express
     * Sub Project Name:
-        - Payment Service
+        - Branch Service
     * Description
-        - Payment Microservices service
+        - Branch location and details service
 """
 
 
@@ -38,7 +38,7 @@ import logstash
 
 # const vars
 __extra__ = {
-    'app_name': 'Payment Service',      
+    'app_name': 'Branch Service',      
     'environment': os.getenv('ENV'),  
     'container_host': os.getenv('HOST'),
     'port': os.getenv('PORT'),
@@ -56,12 +56,17 @@ logger = logging.getLogger(__name__)
 
 # logger handler
 logger.addHandler(
-    logstash.LogstashHandler(
+    logstash.TCPLogstashHandler(
+        #"logstash-logstash.guya-ltd-elk.svc.cluster.local",
+        #5400, 
         os.getenv('LOGGING_HOST'),
         os.getenv('LOGGING_PORT'), 
-        version=1)
+        version=1
     )
-#logger.error("help")
+)
+
 def log_exception(error, extra) -> None:
+    myextra = __extra__
+    myextra.update(extra)
     # recommanded for production or eithre the logging servier is running
-    logger.exception(str(error), extra = __extra__.update(extra))
+    logger.exception(str(error), extra = myextra)
