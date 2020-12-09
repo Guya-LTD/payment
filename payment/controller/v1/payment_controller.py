@@ -110,7 +110,7 @@ Functions:
     * delete - return delation status
 
 """
-from flask import jsonify, make_response
+from flask import request, jsonify, make_response
 from flask_restplus import Resource
 from werkzeug.exceptions import InternalServerError
 from bson import ObjectId
@@ -119,71 +119,9 @@ from payment.repository.payment import Payment
 from payment.dto.payment_dto import PaymentDto
 from payment.blueprint.v1.payment import namespace
 from payment.exception import ValueEmpty, InvalidObjectId, DocumentDoesNotExist
+from payment.middleware.jwt_auth_middleware import JWTAuthMiddleWare
 
 @namespace.route('')
-@namespace.response(100, 'Continue')
-@namespace.response(101, 'Switching Protocols')
-@namespace.response(102, 'Processing')
-@namespace.response(103, 'Early Hints (RFC 8297)')
-@namespace.response(200, 'Ok')
-@namespace.response(201, 'Created')
-@namespace.response(202, 'Accepted')
-@namespace.response(203, 'Non-Authoritative Information')
-@namespace.response(204, 'No Content')
-@namespace.response(205, 'Reset Content')
-@namespace.response(206, 'Partial Content')
-@namespace.response(207, 'Multi-Status')
-@namespace.response(208, 'Already Reported')
-@namespace.response(226, 'IM Used')
-@namespace.response(300, 'Multiple Choices')
-@namespace.response(301, 'Moved Permanently')
-@namespace.response(302, 'Found (Previously "Moved temporarily")')
-@namespace.response(303, 'See Other')
-@namespace.response(304, 'Not Modified')
-@namespace.response(305, 'Use Proxy')
-@namespace.response(306, 'Switch Proxy')
-@namespace.response(307, 'Temporary Redirect')
-@namespace.response(308, 'Permanent Redirect')
-@namespace.response(400, 'Bad  Request')
-@namespace.response(401, 'Unauthorized')
-@namespace.response(402, 'Payment Required')
-@namespace.response(403, 'Forbidden')
-@namespace.response(404, 'Not Found')
-@namespace.response(405, 'Method Not Allowed')
-@namespace.response(406, 'Not Acceptable')
-@namespace.response(407, 'Proxy Authentication Required')
-@namespace.response(408, 'Request Timeout')
-@namespace.response(409, 'Conflict')
-@namespace.response(410, 'Gone')
-@namespace.response(411, 'Length Required')
-@namespace.response(412, 'Precondition Failed')
-@namespace.response(413, 'Payload Too Large')
-@namespace.response(414, 'URI Too Long')
-@namespace.response(415, 'Unsupported Media Type')
-@namespace.response(416, 'Range Not Satisfiable')
-@namespace.response(417, 'Expection Failed')
-@namespace.response(418, 'I\'m a teapot')
-@namespace.response(421, 'Misdirected Request')
-@namespace.response(422, 'Unprocessable Entity ')
-@namespace.response(423, 'Locked')
-@namespace.response(424, 'Failed Dependency')
-@namespace.response(425, 'Too Early')
-@namespace.response(426, 'Upgrade Required')
-@namespace.response(428, 'Precondition Required')
-@namespace.response(429, 'Too Many Requests')
-@namespace.response(431, 'Request Header Fields Too Large')
-@namespace.response(451, 'Unavailable For Legal Reasons')
-@namespace.response(500, 'Internal Server Error')
-@namespace.response(501, 'Not Implemented')
-@namespace.response(502, 'Bad Gateway')
-@namespace.response(503, 'Service Unavaliable')
-@namespace.response(504, 'Gateway Timeout')
-@namespace.response(505, 'HTTP Version Not Supported')
-@namespace.response(506, 'Variant Also Negotiates')
-@namespace.response(507, 'Insufficent Storage')
-@namespace.response(508, 'Loop Detected')
-@namespace.response(510, 'Not Extended')
-@namespace.response(511, 'Network Authentication Required')
 class PaymentList(Resource):
     """Payment Related Operation
 
@@ -207,7 +145,9 @@ class PaymentList(Resource):
         Save data/datas to database
 
     """
+    _LIMIT = 10
 
+    @namespace.header('Authorization', 'Jwt Token')
     def get(self):
         """Get All/Semi datas from database
 
@@ -222,7 +162,35 @@ class PaymentList(Resource):
             Json Dictionaries
 
         """
-        namespace.abort(405)
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', self._LIMIT))
+        filters = {}
+        order_by = request.args.get('order_by')
+
+        for key in request.args:
+            if key not in ['page', 'limit', 'sort_by', 'order_by']:
+                splited = request.args.get(key).split(':')
+                value = splited[1]
+                try: 
+                    value = ast.literal_eval(value)
+                except ValueError:
+                    pass 
+
+                filters[key] = {'$%s' % splited[0] :  value}
+
+        payments = Payment.objects(__raw__ = filters).order_by(order_by).paginate( page = page, per_page = limit).items
+
+        return make_response(jsonify({
+            'status_code': 200,
+            'status': 'Ok',
+            'message': 'All Payments',
+            'data': payments,
+            'pagination': {
+                'count': Payment.objects.count(),
+                'limit': limit,
+                'page': page
+            }
+        }), 200)
 
     @namespace.expect(PaymentDto.request, validate = True)
     def post(self):
@@ -235,6 +203,15 @@ class PaymentList(Resource):
             Json Dictionaries
 
         """
+        ## Payments entered by not a client
+
+        jwtAuthMiddleWare = JWTAuthMiddleWare(request)
+        auth = jwtAuthMiddleWare.authorize()
+        # If auth is false break and return response to client
+        # Else jwtAuthMiddleWare holds decoded users data
+        if not auth:
+            return jwtAuthMiddleWare.response
+
         # start by validating request fields for extra security
         # step 1 validation: strip payloads for empty string
         if not namespace.payload['invoice_number'].strip() or \
@@ -248,7 +225,8 @@ class PaymentList(Resource):
             invoice_number = namespace.payload['invoice_number'],
             transaction_id = namespace.payload['transaction_id'],
             transaction_date = namespace.payload['transaction_date'],
-            transaction_medium = namespace.payload['transaction_medium']
+            transaction_medium = namespace.payload['transaction_medium'],
+            created_by = str(jwtAuthMiddleWare.user["data"]["id"])
         )
         
         # persist to db
@@ -256,92 +234,15 @@ class PaymentList(Resource):
 
         # if persisted in to db return id
         if isinstance(payment.id, ObjectId):
-            # Return must always include the global fileds :
-            # Field           Datatype        Default         Description             Examples
-            # -----           --------        -------         -----------             --------
-            # code            int             201             1xx, 2xx, 3xx, 5xx
-            # description     string          Created         http code description
-            # messages        array           Null            any type of messages
-            # errors          array           Null            occured errors
-            # warnings        array           Null            can be url format
-            # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
-            res = make_response
             return make_response(jsonify({
-                'code': 201,
-                'description': 'Created',
-                'message': None,
-                'errors': [],
-                'warnings': [],
-                'datas': []
+                'status_code': 201,
+                'status': 'Created'
             }), 201)
         else:
             raise InternalServerError({'payloads': namespace.payload, 'description': 'Server failed to save payload'})
 
 
-@namespace.route('/<int:id>')
-@namespace.response(100, 'Continue')
-@namespace.response(101, 'Switching Protocols')
-@namespace.response(102, 'Processing')
-@namespace.response(103, 'Early Hints (RFC 8297)')
-@namespace.response(200, 'Ok')
-@namespace.response(201, 'Created')
-@namespace.response(202, 'Accepted')
-@namespace.response(203, 'Non-Authoritative Information')
-@namespace.response(204, 'No Content')
-@namespace.response(205, 'Reset Content')
-@namespace.response(206, 'Partial Content')
-@namespace.response(207, 'Multi-Status')
-@namespace.response(208, 'Already Reported')
-@namespace.response(226, 'IM Used')
-@namespace.response(300, 'Multiple Choices')
-@namespace.response(301, 'Moved Permanently')
-@namespace.response(302, 'Found (Previously "Moved temporarily")')
-@namespace.response(303, 'See Other')
-@namespace.response(304, 'Not Modified')
-@namespace.response(305, 'Use Proxy')
-@namespace.response(306, 'Switch Proxy')
-@namespace.response(307, 'Temporary Redirect')
-@namespace.response(308, 'Permanent Redirect')
-@namespace.response(400, 'Bad  Request')
-@namespace.response(401, 'Unauthorized')
-@namespace.response(402, 'Payment Required')
-@namespace.response(403, 'Forbidden')
-@namespace.response(404, 'Not Found')
-@namespace.response(405, 'Method Not Allowed')
-@namespace.response(406, 'Not Acceptable')
-@namespace.response(407, 'Proxy Authentication Required')
-@namespace.response(408, 'Request Timeout')
-@namespace.response(409, 'Conflict')
-@namespace.response(410, 'Gone')
-@namespace.response(411, 'Length Required')
-@namespace.response(412, 'Precondition Failed')
-@namespace.response(413, 'Payload Too Large')
-@namespace.response(414, 'URI Too Long')
-@namespace.response(415, 'Unsupported Media Type')
-@namespace.response(416, 'Range Not Satisfiable')
-@namespace.response(417, 'Expection Failed')
-@namespace.response(418, 'I\'m a teapot')
-@namespace.response(421, 'Misdirected Request')
-@namespace.response(422, 'Unprocessable Entity ')
-@namespace.response(423, 'Locked')
-@namespace.response(424, 'Failed Dependency')
-@namespace.response(425, 'Too Early')
-@namespace.response(426, 'Upgrade Required')
-@namespace.response(428, 'Precondition Required')
-@namespace.response(429, 'Too Many Requests')
-@namespace.response(431, 'Request Header Fields Too Large')
-@namespace.response(451, 'Unavailable For Legal Reasons')
-@namespace.response(500, 'Internal Server Error')
-@namespace.response(501, 'Not Implemented')
-@namespace.response(502, 'Bad Gateway')
-@namespace.response(503, 'Service Unavaliable')
-@namespace.response(504, 'Gateway Timeout')
-@namespace.response(505, 'HTTP Version Not Supported')
-@namespace.response(506, 'Variant Also Negotiates')
-@namespace.response(507, 'Insufficent Storage')
-@namespace.response(508, 'Loop Detected')
-@namespace.response(510, 'Not Extended')
-@namespace.response(511, 'Network Authentication Required')
+@namespace.route('/<string:id>')
 class PaymentResource(Resource):
     """"Single Payment Related Operation
 
@@ -385,22 +286,9 @@ class PaymentResource(Resource):
         # and MultipleObjectsReturned if more than one document matched the query
         payment = Payment.objects.get(id = id)
 
-        # Return must always include the global fileds :
-        # Field           Datatype        Default         Description             Examples
-        # -----           --------        -------         -----------             --------
-        # code            int             201             1xx, 2xx, 3xx, 5xx
-        # description     string          Created         http code description
-        # messages        array           Null            any type of messages
-        # errors          array           Null            occured errors
-        # warnings        array           Null            can be url format
-        # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
-        res = make_response
         return make_response(jsonify({
-            'code': 200,
-            'description': 'OK',
-            'message': None,
-            'errors': [],
-            'warnings': [],
+            'status_code': 200,
+            'status': 'OK',
             'datas': [payment]
         }), 200)
 
@@ -422,6 +310,13 @@ class PaymentResource(Resource):
             Json Dictionaries
 
         """
+        jwtAuthMiddleWare = JWTAuthMiddleWare(request)
+        auth = jwtAuthMiddleWare.authorize()
+        # If auth is false break and return response to client
+        # Else jwtAuthMiddleWare holds decoded users data
+        if not auth:
+            return jwtAuthMiddleWare.response
+
         # start by validating request fields for extra security
         # step 1 validation: valid if id is 12-hex
         if not ObjectId.is_valid(id):
@@ -443,48 +338,36 @@ class PaymentResource(Resource):
             invoice_number = namespace.payload['invoice_number'],
             transaction_id = namespace.payload['transaction_id'],
             transaction_date = namespace.payload['transaction_date'],
-            transaction_medium = namespace.payload['transaction_medium']
+            transaction_medium = namespace.payload['transaction_medium'],
+            updated_by = str(jwtAuthMiddleWare.user["data"]["id"])
         )
 
         # save to db
-        payment.reload()
+        #payment.reload()
 
-        if isinstance(payment.id, ObjectId):
-            # Return must always include the global fileds :
-            # Field           Datatype        Default         Description             Examples
-            # -----           --------        -------         -----------             --------
-            # code            int             201             1xx, 2xx, 3xx, 5xx
-            # description     string          Created         http code description
-            # messages        array           Null            any type of messages
-            # errors          array           Null            occured errors
-            # warnings        array           Null            can be url format
-            # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
-            res = make_response
+        #if isinstance(payment.id, ObjectId):
+        if payment:
             return make_response(jsonify({
-                'code': 200,
-                'description': 'OK',
-                'message': None,
-                'errors': [],
-                'warnings': [],
-                'datas': []
+                'status_code': 200,
+                'status': 'OK',
             }), 200)
         else:
             raise InternalServerError({'payloads': namespace.payload, 'description': 'Server failed to update document'})
 
+
     def delete(self, id):
-        """Update a data from database
+        # start by validating request fields for extra security
+        # step 1 validation: strip payloads for empty string
+        if not id.strip():
+           raise ValueEmpty({'payloads': {'id': id}})
 
-        ...
+        # the query may be filtered by calling the QuerySet object 
+        # with field lookup keyword arguments. The keys in the keyword 
+        # arguments correspond to fields on the Document you are querying
+        payments = Payment.objects(id = id).delete()
 
-        Parameters
-        ----------
-        id : String
-            Object Id, i.e 12-byte, 24 char hexadicmal
-
-        Returns
-        -------
-            Json Dictionaries
-
-        """
-        # method not allowed
-        namespace.abort(405)
+        return make_response(jsonify({
+            "status_code": 200,
+            "status": "OK",
+            "message": "Payment deleted"
+        }), 200)

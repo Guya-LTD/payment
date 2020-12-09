@@ -49,7 +49,7 @@ class TimestampMixin(object):
 
     """
 
-    created_at = db.Datetime(default = datetime.now(timezone('Africa/Addis_Ababa')))
+    created_at = db.DateTimeField(default = datetime.now(timezone('Africa/Addis_Ababa')))
 
-    updated_at = db.Datetime(default = datetime.now(timezone('Africa/Addis_Ababa')))
+    updated_at = db.DateTimeField(default = datetime.now(timezone('Africa/Addis_Ababa')))
 

@@ -49,6 +49,5 @@ class UserMixin(object):
 
     created_by = db.StringField()
 
-
     updated_by = db.StringField()
 

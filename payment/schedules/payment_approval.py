@@ -43,6 +43,7 @@ to a previous configuration.
 """
 
 def checkAndApprove():
-    with app.app_context():
-        print("Approved")
+    print("Hello From check and Approve")
+    #with app.app_context():
+    #    print("Approved")
     

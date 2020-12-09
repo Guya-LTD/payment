@@ -35,8 +35,10 @@ Version Requirements:
 from payment.database import db
 from ..model.payment import Payment as PaymentEntity
 from .mixins.transaction_mixin import TransactionMixin
+from .mixins.timestamp_mixin import TimestampMixin
+from .mixins.user_mixin import UserMixin
 
-class Payment(db.Document, PaymentEntity, TransactionMixin):
+class Payment(db.Document, PaymentEntity, TransactionMixin, TimestampMixin, UserMixin):
     """Payment ODM
     ...
     
