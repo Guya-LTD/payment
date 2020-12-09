@@ -52,7 +52,7 @@ from .handlers import register_handler
 from flask_apscheduler import APScheduler
 
 # import all controllers
-from payment.controller.v1 import payment_controller
+from payment.controller.v1 import payment_controller, transaction_controller
 
 # const vars
 __version__ = '0.0.1'

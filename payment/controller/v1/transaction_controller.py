@@ -115,15 +115,15 @@ from flask_restplus import Resource
 from werkzeug.exceptions import InternalServerError
 from bson import ObjectId
 
-from payment.repository.payment import Payment
-from payment.dto.payment_dto import PaymentDto
-from payment.blueprint.v1.payment import namespace
+from payment.repository.transaction import Transaction
+from payment.dto.transaction_dto import TransactionDto
+from payment.blueprint.v1.transaction import namespace
 from payment.exception import ValueEmpty, InvalidObjectId, DocumentDoesNotExist
 from payment.middleware.jwt_auth_middleware import JWTAuthMiddleWare
 
 @namespace.route('')
-class PaymentList(Resource):
-    """Payment Related Operation
+class TransactionList(Resource):
+    """Transaction Related Operation
 
     ...
 
@@ -178,21 +178,21 @@ class PaymentList(Resource):
 
                 filters[key] = {'$%s' % splited[0] :  value}
 
-        payments = Payment.objects(__raw__ = filters).order_by(order_by).paginate( page = page, per_page = limit).items
+        transactions = Transaction.objects(__raw__ = filters).order_by(order_by).paginate( page = page, per_page = limit).items
 
         return make_response(jsonify({
             'status_code': 200,
             'status': 'Ok',
-            'message': 'All Payments',
-            'data': payments,
+            'message': 'All transactions',
+            'data': transactions,
             'pagination': {
-                'count': Payment.objects.count(),
+                'count': Transaction.objects.count(),
                 'limit': limit,
                 'page': page
             }
         }), 200)
 
-    @namespace.expect(PaymentDto.request, validate = True)
+    @namespace.expect(TransactionDto.request, validate = True)
     def post(self):
         """Save data/datas to database
 
@@ -203,7 +203,7 @@ class PaymentList(Resource):
             Json Dictionaries
 
         """
-        ## Payments entered a client
+        ## Transaction entered by not a client
 
         jwtAuthMiddleWare = JWTAuthMiddleWare(request)
         auth = jwtAuthMiddleWare.authorize()
@@ -217,23 +217,25 @@ class PaymentList(Resource):
         if not namespace.payload['invoice_number'].strip() or \
            not namespace.payload['transaction_id'].strip() or \
            not namespace.payload['transaction_date'].strip() or \
+           not namespace.payload['amount'] or \
            not namespace.payload['transaction_medium'].strip():
            raise ValueEmpty({'payloads': namespace.payload})
         
         # init new payment object
-        payment = Payment(
-            invoice_number = namespace.payload['invoice_number'],
+        transaction = Transaction(
             transaction_id = namespace.payload['transaction_id'],
             transaction_date = namespace.payload['transaction_date'],
             transaction_medium = namespace.payload['transaction_medium'],
+            amount = namespace.payload['amount'],
+            flag = namespace.payload['flag'],
             created_by = str(jwtAuthMiddleWare.user["data"]["id"])
         )
         
         # persist to db
-        payment.save()
+        transaction.save()
 
         # if persisted in to db return id
-        if isinstance(payment.id, ObjectId):
+        if isinstance(transaction.id, ObjectId):
             return make_response(jsonify({
                 'status_code': 201,
                 'status': 'Created'
@@ -243,8 +245,8 @@ class PaymentList(Resource):
 
 
 @namespace.route('/<string:id>')
-class PaymentResource(Resource):
-    """"Single Payment Related Operation
+class TransactionResource(Resource):
+    """"Single Transaction Related Operation
 
     ...
 
@@ -284,17 +286,23 @@ class PaymentResource(Resource):
         # retrieve a result that should be unique in the collection, use get(). 
         # this will raise DoesNotExist if no document matches the query, 
         # and MultipleObjectsReturned if more than one document matched the query
-        payment = Payment.objects.get(id = id)
+        transaction = Transaction.objects.get(id = id)
 
-        return make_response(jsonify({
-            'status_code': 200,
-            'status': 'OK',
-            'datas': payment
-        }), 200)
+        if not transaction:
+            return make_response(jsonify({
+                'status_code': 204,
+                'status': 'No Content'
+            }), 204)
+        else:
+            return make_response(jsonify({
+                'status_code': 200,
+                'status': 'OK',
+                'datas': transaction
+            }), 200)
 
 
 
-    @namespace.expect(PaymentDto.request, validate = True)
+    @namespace.expect(TransactionDto.request, validate = True)
     def put(self, id):
         """Update a data from database
 
@@ -323,22 +331,23 @@ class PaymentResource(Resource):
             raise InvalidObjectId({'payloads': [{'id': id}]})
 
         # step 2 validation: check if document exists in collection
-        if not Payment.objects(id = id):
+        if not Transaction.objects(id = id):
             raise DocumentDoesNotExist({'payloads': [{'id': id}]})
 
         # step 3 validation: strip payloads for empty string
-        if not namespace.payload['invoice_number'].strip() or \
+        if not namespace.payload['amount'].strip() or \
            not namespace.payload['transaction_id'].strip() or \
            not namespace.payload['transaction_date'].strip() or \
            not namespace.payload['transaction_medium'].strip():
            raise ValueEmpty({'payloads': namespace.payload})
 
         # update sets
-        payment = Payment.objects(id = id).update(
-            invoice_number = namespace.payload['invoice_number'],
+        transaction = Transaction.objects(id = id).update(
             transaction_id = namespace.payload['transaction_id'],
             transaction_date = namespace.payload['transaction_date'],
             transaction_medium = namespace.payload['transaction_medium'],
+            amount = namespace.payload['amount'],
+            flag = namespace.payload['flag'],
             updated_by = str(jwtAuthMiddleWare.user["data"]["id"])
         )
 
@@ -346,7 +355,7 @@ class PaymentResource(Resource):
         #payment.reload()
 
         #if isinstance(payment.id, ObjectId):
-        if payment:
+        if transaction:
             return make_response(jsonify({
                 'status_code': 200,
                 'status': 'OK',
@@ -364,10 +373,10 @@ class PaymentResource(Resource):
         # the query may be filtered by calling the QuerySet object 
         # with field lookup keyword arguments. The keys in the keyword 
         # arguments correspond to fields on the Document you are querying
-        payments = Payment.objects(id = id).delete()
+        transaction = Transaction.objects(id = id).delete()
 
         return make_response(jsonify({
             "status_code": 200,
             "status": "OK",
-            "message": "Payment deleted"
+            "message": "Transaction deleted"
         }), 200)
