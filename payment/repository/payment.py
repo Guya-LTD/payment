@@ -54,6 +54,45 @@ class Payment(db.Document, PaymentEntity, TransactionMixin, TimestampMixin, User
 
     """
 
-    user_id = db.StringField(required = False)
+    PENDING = 'pending'
+
+    COMPLETE = 'complete'
+
+    FAILED = 'failed'
+
+    SENT = 'sent'
+
+    MANUEL = 'manuel'
+
+    AUTOMATIC = 'automatic'
+
+    STATUS_CHOICES = (
+        PENDING,
+        COMPLETE,
+        FAILED
+    )
+
+    EMAIL_STATUS_CHOICE = (
+        PENDING,
+        SENT,
+        FAILED
+    )
+
+    APPROVAL_METHOD_CHOICE = (
+        MANUEL,
+        AUTOMATIC
+    )
+
+
+    #user_id = db.StringField(required = False)
 
     invoice_number = db.StringField(required = True)
+
+    status = db.StringField(required = True, default = PENDING, choices = STATUS_CHOICES )
+
+    email_status =  db.StringField(required = True, default = PENDING, choices = EMAIL_STATUS_CHOICE )
+
+    approval_method = db.StringField(required = False, choices = APPROVAL_METHOD_CHOICE )
+
+    ## Holds faild reason or other flags
+    flag = db.StringField()

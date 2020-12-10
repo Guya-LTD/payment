@@ -57,3 +57,4 @@ class Transaction(db.Document, TransactionEntity, UserMixin, TimestampMixin, Tra
     amount = db.FloatField(required=True)
 
     flag = db.StringField()
+
