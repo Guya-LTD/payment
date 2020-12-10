@@ -46,7 +46,7 @@ class Config:
             'id': 'job1',
             'func': 'payment.schedules.payment_approval:checkAndApprove',
             'trigger': 'interval',
-            'seconds': 120
+            'seconds': 60
         }
     ]
 

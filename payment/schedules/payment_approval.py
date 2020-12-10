@@ -42,8 +42,32 @@ responsible for initializing the application according
 to a previous configuration.
 """
 
+from payment.repository.payment import Payment
+from payment.repository.transaction import Transaction
+
+#from .database import db
+
 def checkAndApprove():
-    print("Hello From check and Approve")
-    #with app.app_context():
-    #    print("Approved")
-    
+    print("Payment approval starting...")
+    ## Find matching payment transaction
+    payments = Payment.objects(status = Payment.PENDING)
+    ## Loop through payments
+    for payment in payments:
+        try:
+            transaction =  Transaction.objects.get(
+                transaction_id = payment.transaction_id,
+                transaction_date = payment.transaction_date,
+                transaction_medium = payment.transaction_medium
+            )
+            ## Check if transaction is correct
+            if transaction.id:
+                ## Transaction and payment matched
+                ## TODO: Retrive invoice using `payment.invoice_id` from Order Service
+                ##       and send receipt email
+                Payment.objects(id = payment.id).update(
+                    status = Payment.COMPLETE,
+                    email_status = Payment.SENT,
+                    approval_method = Payment.AUTOMATIC
+                )
+        except Exception as ex:
+            print(ex)
