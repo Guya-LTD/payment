@@ -41,7 +41,9 @@ This module contains the factory function 'create_app' that is
 responsible for initializing the application according
 to a previous configuration.
 """
+import requests
 
+from payment.endpoint import Endpoint
 from payment.repository.payment import Payment
 from payment.repository.transaction import Transaction
 
@@ -49,6 +51,8 @@ from payment.repository.transaction import Transaction
 
 def checkAndApprove():
     print("Payment approval starting...")
+    ## Endpoint
+    endpoint = Endpoint()
     ## Find matching payment transaction
     payments = Payment.objects(status = Payment.PENDING)
     ## Loop through payments
@@ -64,6 +68,15 @@ def checkAndApprove():
                 ## Transaction and payment matched
                 ## TODO: Retrive invoice using `payment.invoice_id` from Order Service
                 ##       and send receipt email
+                invoice_request = requests.get(
+                    #endpoint.order('invoices/' + str(payment.invoice_id))
+                    endpoint.mocking_server('invoices/1')
+                )
+                ## Send receipt
+                chipmunk_request = requests.post(
+                    endpoint.chipmunk('emails/send/receipt'),
+                    json = invoice_request.json()['data']
+                )
                 Payment.objects(id = payment.id).update(
                     status = Payment.COMPLETE,
                     email_status = Payment.SENT,

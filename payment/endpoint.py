@@ -34,3 +34,12 @@ import os
 class Endpoint:
     def gatekeeper(self, name):
         return 'http://' + os.environ.get('GATEKEEPER_URL') + "/api/v1/" + name
+
+    def order(self, name):
+        return 'http://' + os.environ.get('ORDER_URL') + '/api/v1/' + name
+
+    def chipmunk(self, name):
+        return 'http://' + os.environ.get('CHIPMUNK_URL') + '/api/v1/' + name
+
+    def mocking_server(self, name):
+        return 'http://' + os.environ.get('MOCKING_SERVER_URL') + '/api/v1/' + name
