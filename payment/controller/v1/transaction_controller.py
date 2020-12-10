@@ -214,8 +214,7 @@ class TransactionList(Resource):
 
         # start by validating request fields for extra security
         # step 1 validation: strip payloads for empty string
-        if not namespace.payload['invoice_number'].strip() or \
-           not namespace.payload['transaction_id'].strip() or \
+        if not namespace.payload['transaction_id'] or \
            not namespace.payload['transaction_date'].strip() or \
            not namespace.payload['amount'] or \
            not namespace.payload['transaction_medium'].strip():
@@ -336,8 +335,8 @@ class TransactionResource(Resource):
 
         # step 3 validation: strip payloads for empty string
         if not namespace.payload['amount'].strip() or \
-           not namespace.payload['transaction_id'].strip() or \
-           not namespace.payload['transaction_date'].strip() or \
+           not namespace.payload['transaction_id'] or \
+           not namespace.payload['transaction_date'] or \
            not namespace.payload['transaction_medium'].strip():
            raise ValueEmpty({'payloads': namespace.payload})
 
